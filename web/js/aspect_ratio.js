@@ -44,14 +44,21 @@ app.registerExtension({
 			});
 		}
 
+		function removePreviewMode(node) {
+			if (!node.widgets) return;
+			const idx = node.widgets.findIndex((w) => w.name === "preview_mode");
+			if (idx < 0) return;
+			const w = node.widgets[idx];
+			try { w.onRemove?.(); } catch (e) {}
+			node.widgets.splice(idx, 1);
+			if (w.element) w.element.style.display = "none";
+		}
+
 		const onNodeCreated = nodeType.prototype.onNodeCreated;
 		nodeType.prototype.onNodeCreated = function () {
 			onNodeCreated?.apply(this, arguments);
 			api()?.addTextPreviewWidgets?.(this);
-
-			const mode = this.widgets?.find((w) => w.name === "preview_mode");
-			if (mode?.options) mode.options.hidden = true;
-
+			removePreviewMode(this);
 			shrinkPreview(this);
 		};
 
