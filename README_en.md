@@ -4,7 +4,7 @@ English | [中文](README.md)
 
 Detects the closest common aspect ratio from an image's width/height
 (1:1 / 2:3 / 3:2 / 3:4 / 4:3 / 5:4 / 4:5 / 9:16 / 16:9 / 9:21 / 21:9 / 1:2 / 2:1),
-and outputs only the ratio name (`ratio`).
+and displays the ratio name (`ratio`).
 
 ## 1. Installation
 
@@ -16,7 +16,7 @@ on the canvas, and its inputs show `UNKNOWN`.
 Correct structure (both files are required):
 
 ```
-ComfyUI/custom_nodes/aspect_ratio/
+ComfyUI/custom_nodes/ComfyUI-AspectRatio/
 ├── __init__.py                     # required
 └── image_aspect_ratio.py
 ```
@@ -37,10 +37,10 @@ Simpler alternative: drop `image_aspect_ratio.py` directly into `ComfyUI/custom_
 
 ## 2. Usage
 
-- **`image` input** (IMAGE, optional): connect any image output; width/height are read automatically.
-- **`width` / `height` inputs** (INT, optional): type numbers directly when no image is connected.
-  If both are non-zero, these numbers take priority.
-- **`ratio` output** (string): the detected ratio, e.g. `"2:3"`, `"21:9"`.
+- **`image` input** (IMAGE): connect any image output; width/height are read and the ratio is detected automatically.
+- **`ratio` output** (STRING): the detected ratio text, e.g. `"2:3"`, `"21:9"`, shown directly on the node.
+- **`ratio_combo` output** (Any): the same value, meant for connecting to dropdown (COMBO) inputs
+  such as Banana / GPT Image's `aspect_ratio`.
 
 ## 3. Merge into your own workflow
 

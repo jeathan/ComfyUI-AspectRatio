@@ -4,7 +4,7 @@
 
 根据图片宽高，判断最接近哪个常用比例
 （1:1 / 2:3 / 3:2 / 3:4 / 4:3 / 5:4 / 4:5 / 9:16 / 16:9 / 9:21 / 21:9 / 1:2 / 2:1），
-只输出比例名称（`ratio`）。
+并显示比例名称（`ratio`）。
 
 ## 1. 安装节点
 
@@ -16,7 +16,7 @@
 正确结构（两个文件都要）：
 
 ```
-ComfyUI/custom_nodes/aspect_ratio/
+ComfyUI/custom_nodes/ComfyUI-AspectRatio/
 ├── __init__.py                     # 必须有
 └── image_aspect_ratio.py
 ```
@@ -37,10 +37,10 @@ __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
 
 ## 2. 使用
 
-- **输入 `image`**（IMAGE，可选）：连接任意图片输出，自动读取宽高。
-- **输入 `width` / `height`**（INT，可选）：不连图片时，直接填数值判断。
-  如果两者都填了非 0 值，优先使用这里填的数字。
-- **输出 `ratio`**（字符串）：判断结果，如 `"2:3"`、`"21:9"`。
+- **输入 `image`**（IMAGE）：连接任意图片输出，自动读取宽高并判断比例。
+- **输出 `ratio`**（STRING）：判断结果文本，如 `"2:3"`、`"21:9"`，会直接显示在节点上。
+- **输出 `ratio_combo`**（Any）：与 `ratio` 相同的值，专门用于连接下拉框（COMBO）输入，
+  如 Banana / GPT Image 的 `aspect_ratio`。
 
 ## 3. 合并进你自己的工作流
 

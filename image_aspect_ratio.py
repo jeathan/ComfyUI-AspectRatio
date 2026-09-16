@@ -32,40 +32,29 @@ def closest_ratio_name(w, h):
 
 
 class ImageAspectRatio:
-    """根据图片宽高判断最接近的比例，并输出该比例名称。"""
+    """根据图片宽高判断最接近的比例，并在节点上显示该比例。"""
 
     @classmethod
     def INPUT_TYPES(cls):
         return {
-            "required": {},
-            "optional": {
+            "required": {
                 "image": ("IMAGE",),
-                "width": ("INT", {"default": 0, "min": 0, "max": 8192, "step": 8}),
-                "height": ("INT", {"default": 0, "min": 0, "max": 8192, "step": 8}),
             },
         }
 
-    # ratio 用 "*"（Any）而不是 "STRING"：
-    # ComfyUI 后端 comfy_execution/validation.py 会拒绝 STRING -> COMBO 的连接
-    # （STRING 与 COMBO 无类型交集），而 "*" 可以连到任何输入，
-    # 包括 comfyui-Banana-API-3 的 aspect_ratio 这类下拉框输入。
-    RETURN_TYPES = ("*",)
-    RETURN_NAMES = ("ratio",)
+    # ratio 用 "STRING"：会在输出端口上直接显示文本（如 "16:9"）。
+    # ratio_combo 用 "*"（Any）：输出同一个值，专门用于连接下拉框（COMBO）输入，
+    # 例如 Banana / GPT Image 的 aspect_ratio（STRING -> COMBO 会被 ComfyUI 拒绝）。
+    RETURN_TYPES = ("STRING", "*")
+    RETURN_NAMES = ("ratio", "ratio_combo")
     FUNCTION = "detect"
     CATEGORY = "utils/aspect"
 
-    def detect(self, image=None, width=0, height=0):
-        # 优先使用显式传入的宽高，其次从图片张量读取
-        if width > 0 and height > 0:
-            w, h = width, height
-        elif image is not None:
-            # IMAGE 形状: (batch, height, width, channels)
-            h, w = image.shape[1], image.shape[2]
-        else:
-            raise ValueError("ImageAspectRatio: 需要连接 image，或填写 width/height")
-
+    def detect(self, image):
+        # IMAGE 形状: (batch, height, width, channels)
+        h, w = image.shape[1], image.shape[2]
         name = closest_ratio_name(w, h)
-        return (name,)
+        return (name, name)
 
 
 NODE_CLASS_MAPPINGS = {"ImageAspectRatio": ImageAspectRatio}
