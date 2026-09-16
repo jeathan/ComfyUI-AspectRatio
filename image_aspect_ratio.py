@@ -56,7 +56,7 @@ class ImageAspectRatio:
         # IMAGE 形状: (batch, height, width, channels)
         h, w = image.shape[1], image.shape[2]
         name = closest_ratio_name(w, h)
-        return {"ui": {"text": [name]}, "result": (name, name)}
+        return {"ui": {"text": (name,)}, "result": (name, name)}
 
 
 NODE_CLASS_MAPPINGS = {"ImageAspectRatio": ImageAspectRatio}
