@@ -1,6 +1,8 @@
 import { app } from "../../../scripts/app.js";
 
 // 在节点上直接显示判断出的图片比例（如 "16:9"），并把预览框压缩到单行高度。
+// 关键：textPreview 用的是 <textarea>（Tailwind min-h-16 = 64px）或 markdown div（min-h-[60px]），
+// 所以需要覆盖这两个内部元素的高度，而不只是外层容器。
 
 app.registerExtension({
 	name: "ImageAspectRatio.Display",
@@ -9,26 +11,34 @@ app.registerExtension({
 
 		const api = () => window.comfyAPI?.textPreviewWidgets;
 
+		// 注入 CSS，把文本预览内容压成单行（!important 覆盖 Tailwind 的 min-h-16 / min-h-[60px]）
+		const styleId = "iar-aspect-ratio-preview";
+		if (!document.getElementById(styleId)) {
+			const style = document.createElement("style");
+			style.id = styleId;
+			style.textContent = [
+				".widget-text-preview textarea,",
+				".widget-text-preview .comfy-markdown-content {",
+				"  min-height: 22px !important;",
+				"  max-height: 22px !important;",
+				"  height: 22px !important;",
+				"  padding-top: 2px !important;",
+				"  padding-bottom: 2px !important;",
+				"  overflow: hidden !important;",
+				"}",
+			].join("\n");
+			document.head.appendChild(style);
+		}
+
 		function shrinkPreview(node) {
 			const preview = node.widgets?.find((w) => w.name === "preview_text");
 			if (!preview) return;
-
-			// 让节点预留空间按 22px 计算
 			if (preview.options) {
 				preview.options.getMinHeight = () => 22;
 				preview.options.getMaxHeight = () => 22;
 			}
 			preview.computeLayoutSize = () => ({ minHeight: 22, maxHeight: 22, minWidth: 0 });
-
-			// 直接把渲染出来的 DOM 高度压成单行
 			requestAnimationFrame(() => {
-				const el = preview.element?.querySelector?.(".widget-text-preview") ?? preview.element;
-				if (el) {
-					el.style.minHeight = "22px";
-					el.style.maxHeight = "22px";
-					el.style.height = "22px";
-					el.style.overflow = "hidden";
-				}
 				node.setSize?.(node.computeSize?.());
 				app.graph?.setDirtyCanvas?.(true, false);
 			});
@@ -39,7 +49,6 @@ app.registerExtension({
 			onNodeCreated?.apply(this, arguments);
 			api()?.addTextPreviewWidgets?.(this);
 
-			// 隐藏 Markdown/Plain text 切换开关
 			const mode = this.widgets?.find((w) => w.name === "preview_mode");
 			if (mode?.options) mode.options.hidden = true;
 
