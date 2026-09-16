@@ -49,26 +49,10 @@ Simpler alternative: drop `image_aspect_ratio.py` directly into `ComfyUI/custom_
 3. Switch to your own workflow tab and press `Ctrl+V`;
 4. Connect your existing image output to this node's `image` input.
 
-## 4. Can't connect to a third-party node's dropdown input? (fixed)
-
-`ratio` is typed `"*"` (Any) instead of `"STRING"` — on purpose.
-
-Inputs like `comfyui-Banana-API-3`'s `aspect_ratio` are declared as
-`(["Auto", "1:1", "9:16", ...], {...})`, i.e. type **COMBO (dropdown)**.
-ComfyUI's `comfy_execution/validation.py` requires the two types to have a non-empty
-intersection, and `STRING` has no intersection with `COMBO`, so a **STRING → COMBO**
-connection is rejected:
-
-```
-STRING -> COMBO : False   ❌ rejected ("Return type mismatch between linked nodes")
-*      -> COMBO : True    ✅ allowed
-```
-
-With `"*"` both the frontend and backend allow the link. Of the ratios this node outputs
-(1:1 / 2:3 / 3:2 / 3:4 / 4:3 / 5:4 / 4:5 / 9:16 / 16:9 / 9:21 / 21:9 / 1:2 / 2:1),
-the first 9 are in Banana's option list; the last 4 (9:21 / 21:9 / 1:2 / 2:1) need the
-target dropdown to include them, otherwise the link is allowed but may error at runtime
-with an "invalid value".
-
-> Tip: if you ever hit another dropdown input you can't connect, the generic fix is to
-> type the upstream output as `"*"` instead of `"STRING"`.
+This node's ratio output can be connected to the relevant `aspect_ratio` input, including
+the `aspect_ratio` of the Nano Banana 2/Pro or GPT Image 2/2.5 API relay stations. Of the
+ratios (1:1 / 2:3 / 3:2 / 3:4 / 4:3 / 5:4 / 4:5 / 9:16 / 16:9 / 9:21 / 21:9 / 1:2 / 2:1),
+the first 9 are in the Banana plugin's option list; the last 4 (9:21 / 21:9 / 1:2 / 2:1)
+are in the GPT Image 2/2.5 plugin's option list. Please confirm the target dropdown
+includes the value, otherwise the link is allowed but may error at runtime with an
+"invalid value".
