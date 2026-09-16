@@ -32,7 +32,7 @@ def closest_ratio_name(w, h):
 
 
 class ImageAspectRatio:
-    """根据图片宽高判断最接近的比例，并在节点上显示该比例。"""
+    """根据图片宽高判断最接近的比例，并把结果直接显示在节点上。"""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -42,19 +42,21 @@ class ImageAspectRatio:
             },
         }
 
-    # ratio 用 "STRING"：会在输出端口上直接显示文本（如 "16:9"）。
-    # ratio_combo 用 "*"（Any）：输出同一个值，专门用于连接下拉框（COMBO）输入，
-    # 例如 Banana / GPT Image 的 aspect_ratio（STRING -> COMBO 会被 ComfyUI 拒绝）。
+    # ratio 用 "STRING"（输出端口显示文本）；ratio_combo 用 "*"（Any）专门连接下拉框
+    # （COMBO）输入，例如 Banana / GPT Image 的 aspect_ratio（STRING -> COMBO 会被拒绝）。
+    # OUTPUT_NODE = True + ui.text：把判断结果（如 "16:9"）直接显示在节点上，
+    # 效果类似 ShowText / PreviewAny。
     RETURN_TYPES = ("STRING", "*")
     RETURN_NAMES = ("ratio", "ratio_combo")
     FUNCTION = "detect"
     CATEGORY = "utils/aspect"
+    OUTPUT_NODE = True
 
     def detect(self, image):
         # IMAGE 形状: (batch, height, width, channels)
         h, w = image.shape[1], image.shape[2]
         name = closest_ratio_name(w, h)
-        return (name, name)
+        return {"ui": {"text": [name]}, "result": (name, name)}
 
 
 NODE_CLASS_MAPPINGS = {"ImageAspectRatio": ImageAspectRatio}
